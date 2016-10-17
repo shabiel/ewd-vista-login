@@ -1,18 +1,3 @@
-/* Modal windows */
-.modal-title { text-align: center; }
-
-.form-group
-{
-  float: left;
-  width: 40%;
-  margin-right: 10%;
-}
-
-.modal-footer
-{
-  clear: both;
-}
-
 /* Login modal */
 #login-intro
 {
@@ -46,12 +31,3 @@
 
 /* Nav */
 .nav-button { margin-right: 8px; }
-
-/* Bed Board */
-#ward .tooltip {
-  cursor: default;
-}
-
-
-
-
