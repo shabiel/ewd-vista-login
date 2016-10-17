@@ -9,17 +9,6 @@
   text-align: left;
 }
 
-/* Division selection modal */
-.modal-content.division legend {
-	text-align: center;
-}
-
-.modal-content.division select#division {
-  margin-left: auto;
-  margin-right: auto;
-  width: auto;
-}
-
 /* User info */
 .user-info {
   cursor: default;
