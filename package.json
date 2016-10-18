@@ -1,7 +1,7 @@
 {
   "name": "ewd-vista-login",
   "version": "1.0.0",
-  "description": "EWD VistA Login",
+  "description": "EWD VistA: login module (required)",
   "main": "index.js",
   "author": "Alexis Carlson & Sam Habiel",
   "license": "Apache-2.0",
