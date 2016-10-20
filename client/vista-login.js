@@ -3,28 +3,26 @@ module.exports.preLogin1 = function(EWD) {
   var messageObj = {
     service: 'ewd-vista-login',
     type: 'initialise'
-  }
+  };
   EWD.send(messageObj, function(responseObj) {
     var messageObj2 = {
       service: 'ewd-vista-login',
       type: 'isLogonInhibited'};
     EWD.send(messageObj2, this.preLogin2);
   });
-}
+};
 
 /* Handle reply from isLogonInhibited */
 module.exports.preLogin2 = function(responseObj) {
   if (responseObj.message.isLogOnProhibited)
   {
-    $('#modal-window').html('<h1>Log-ons are Prohibited.</h1>')
-     .removeClass("modal").removeClass("fade").addClass("jumbotron");
-     return;
+    $('#modal-window').html('<h1>Log-ons are Prohibited.</h1>').removeClass('modal').removeClass('fade').addClass('jumbotron');
+    return;
   }
   if (responseObj.message.isMaxUsersOnSystem)
   {
-    $('#modal-window').html('<h1>No more users are allowed on the system.</h1>')
-     .removeClass("modal").removeClass("fade").addClass("jumbotron");
-     return;
+    $('#modal-window').html('<h1>No more users are allowed on the system.</h1>').removeClass('modal').removeClass('fade').addClass('jumbotron');
+    return;
   }
 
   var params = {
@@ -33,7 +31,7 @@ module.exports.preLogin2 = function(responseObj) {
     targetId: 'modal-window'
   };
   EWD.getFragment(params, this.login); 
-}
+};
 
 // Called from getFragment in preLogin2.
 module.exports.login = function() {
@@ -44,7 +42,7 @@ module.exports.login = function() {
     if (ac === '' || vc === '')
     {
       toastr.options.target = '#modal-dialog';
-      toastr.error("Must enter both access and verify codes");
+      toastr.error('Must enter both access and verify codes');
       return;
     }
 
@@ -97,7 +95,7 @@ module.exports.login = function() {
     {
       arr.push(responseObj.message.value[i]);  
     }
-    $('#login-intro').html("<pre>" + arr.join('\n') + "</pre>");
+    $('#login-intro').html('<pre>' + arr.join('\n') + '</pre>');
   });
 };
 
@@ -119,7 +117,7 @@ module.exports.loggingIn = function(responseObj) {
   // If user wants to change verify code, load that dialog,
   // and branch to it; or if Verify Code Change is required.
   if($('#chkChangeVerify').is(':checked') || responseObj.message.cvc) {
-    toastr.warning("Verify Code Must be Changed!");
+    toastr.warning('Verify Code Must be Changed!');
     
     $('#modal-window').one('hidden.bs.modal', function() {
       var params = {
@@ -146,7 +144,7 @@ module.exports.loggingIn = function(responseObj) {
     
     $('#modal-window').modal('hide');
   }
-}
+};
 
 /* Show change verify code form */
 /* You will think that I am crazy to implement the VISTA VC code logic
@@ -176,25 +174,25 @@ module.exports.showCVC = function(oldPassword) {
     toastr.options.target = '#modal-window';
     if (newVC1 !== newVC2)
     {
-      toastr.error("New Verify Codes don't match");
+      toastr.error('New Verify Codes don\'t match');
       return;
     }
     if (newVC1.length < 8)
     {
-      toastr.error("Verify Code must be longer than 8 characters");
+      toastr.error('Verify Code must be longer than 8 characters');
       return;
     }
 
     /* Thank you Stack Overflow for this! */
     var hasAlpha = (/[A-Za-z]+/).test(newVC1),
-        hasNumber = (/[0-9]+/).test(newVC1),
-        specials = (/[^A-Za-z0-9]+/).test(newVC1);
+      hasNumber = (/[0-9]+/).test(newVC1),
+      specials = (/[^A-Za-z0-9]+/).test(newVC1);
     if (hasAlpha && hasNumber && specials) {
       this.doCVC(oldVC, newVC1, newVC2);
     }
     else {
       /* Message taken from XUSRB */
-      toastr.error("Enter 8-20 characters any combination of alphanumeric-punctuation");
+      toastr.error('Enter 8-20 characters any combination of alphanumeric-punctuation');
       return;
     }
   });
@@ -218,17 +216,17 @@ module.exports.showCVC = function(oldPassword) {
 
 // Change verify code action. Called from form immediately above.
 module.exports.doCVC = function(oldVC, newVC1, newVC2) {
-    var messageObj = {
-      service: 'ewd-vista-login',
-      type: 'cvc',
-      params: {
-        oldVC: oldVC,
-        newVC1: newVC1,
-        newVC2: newVC2
-      }
-    };
+  var messageObj = {
+    service: 'ewd-vista-login',
+    type: 'cvc',
+    params: {
+      oldVC: oldVC,
+      newVC1: newVC1,
+      newVC2: newVC2
+    }
+  };
 
-    EWD.send(messageObj, this.CVCPost);
+  EWD.send(messageObj, this.CVCPost);
 };
 
 /* Verify code Change message from cvc call. Just say if we succceeded, 
@@ -238,7 +236,7 @@ module.exports.CVCPost = function(responseObj) {
   // Below line is necessary because click sometimes fires twice (don't exactly know why)
   if (responseObj.message.ok)
   {
-    toastr.success("Verify Code changed");
+    toastr.success('Verify Code changed');
   }
   else
   {
@@ -249,7 +247,7 @@ module.exports.CVCPost = function(responseObj) {
   }
   
   $('#modal-window').modal('hide');
-}
+};
 
 // Modal pane to select division when loggin in.
 // XUS DIVISION GET will set the division if there are zero or one divisions
@@ -273,15 +271,15 @@ module.exports.selectDivision = function() {
     
     var divisions = [];
     responseObj.message.value.forEach(function(element, index, array) {
-       element = element.split('^');
-       
-       var division     = {};
-       division.ien     = element[0];
-       division.name    = element[1];
-       division.code    = element[2];
-       division.default = ((element[3] == 1) ? true : false)
-       
-       divisions.push(division);
+      element = element.split('^');
+
+      var division     = {};
+      division.ien     = element[0];
+      division.name    = element[1];
+      division.code    = element[2];
+      division.default = ((element[3] == 1) ? true : false);
+
+      divisions.push(division);
     });
     
     // We are done with selecting division if selectable list is 0. Move to next task. 
@@ -300,22 +298,22 @@ module.exports.selectDivision = function() {
         // Build division list; and mark default and enable OK if VISTA has a default assigned.
         var optionsHtml = '';
         divisions.forEach(function(element, index, array) {
-          optionsHtml = optionsHtml + '<option value="' + element.ien + '"';
+          optionsHtml = optionsHtml + '<option value=" + element.ien + "';
           if (element.default) {
-             optionsHtml = optionsHtml + ' selected';
-             $('#ok-button').removeAttr('disabled'); // Enable OK button
+            optionsHtml = optionsHtml + ' selected';
+            $('#ok-button').removeAttr('disabled'); // Enable OK button
           }
           optionsHtml = optionsHtml   + '>' + element.name + '  (' + element.code + ')' + '</option>';
         });
         
-        $("#division").append(optionsHtml); // Populate select with options
-        $("#division").change(event, function() { // if user selects an item, enable Ok button regardless
+        $('#division').append(optionsHtml); // Populate select with options
+        $('#division').change(event, function() { // if user selects an item, enable Ok button regardless
           $('#ok-button').removeAttr('disabled');
         }); 
         
         // Set up buttons
-        $("#ok-button").one('click', function(e) {
-          var ien = $("#division").val();
+        $('#ok-button').one('click', function(e) {
+          var ien = $('#division').val();
           $('#modal-window').modal('hide');
           this.setDivision(ien);
         });
@@ -335,12 +333,12 @@ module.exports.selectDivision = function() {
         });
         
         // Show divisions modal
-        $("#modal-window .btn").show();
+        $('#modal-window .btn').show();
         $('#modal-window').modal('show');          
       });
     }
   }); // EWD.send
-} // VISTA.selectDivision
+}; // VISTA.selectDivision
 
 // Sets division if necessary. Called from selectDivision
 module.exports.setDivision = function(ien) {
@@ -354,12 +352,12 @@ module.exports.setDivision = function(ien) {
         value: '`' + ien
       }]
     }
-  }
+  };
 
   // If setting the division fails, close the application
   EWD.send(messageObj, function(responseObj){
     if (responseObj.message.value != 1) {
-      toastr.error("Failed to set division");
+      toastr.error('Failed to set division');
       this.logout();
     }
     
@@ -384,28 +382,28 @@ module.exports.setContext = function(responseObj) {
         value: 'OR CPRS GUI CHART'
       }]
     }
-  }
+  };
 
   // If we can't set the context, close the application
   EWD.send(messageObj, function(responseObj){
     if (responseObj.message.value != 1) {
-        toastr.error(responseObj.message.value);
-        logout();
+      toastr.error(responseObj.message.value);
+      logout();
     }
     else { 
-        this.showNav(); 
+      this.showNav(); 
     }
   });  
 };
 
 /* Log out functionality */
 logout = function() {
-  toastr.info("Logging Out!");
+  toastr.info('Logging Out!');
   
   params ={
     service: 'ewd-vista-login',
     type: 'logout'
-  }
+  };
   EWD.send(params, function() {
     EWD.disconnectSocket();
   });
@@ -420,11 +418,11 @@ module.exports.showNav = function () {
   $('#logout-button').one('click', this.logout);
   this.showUserInfo();
   $('nav').show();
-}
+};
 
 // Get symbol table from server (Button on Navbar)
 module.exports.showSymbolTable = function() {
-  console.log("Success");
+  console.log('Success');
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
@@ -453,10 +451,10 @@ module.exports.showSymbolTable = function() {
     Fix format based on what Mumps programmers will expect to see and hope for
     the absence of inconvenient patterns in variable values
     */
-    symbolTableHtml = symbolTableHtml.replace(/^\s"/,'');
-    symbolTableHtml = symbolTableHtml.replace(/.\n\s"/g,'\n\n');
-    symbolTableHtml = symbolTableHtml.replace(/": /g, '=');
-    symbolTableHtml = symbolTableHtml.replace(/\\"/g, '""');
+    symbolTableHtml = symbolTableHtml.replace(/^\s'/,'');
+    symbolTableHtml = symbolTableHtml.replace(/.\n\s'/g,'\n\n');
+    symbolTableHtml = symbolTableHtml.replace(/': /g, '=');
+    symbolTableHtml = symbolTableHtml.replace(/\\'/g, '');
     
     var params = {
       service: 'ewd-vista-login',
@@ -483,11 +481,11 @@ module.exports.showSymbolTable = function() {
       });
 
       // Show modal
-      $("#modal-window .btn").show();
+      $('#modal-window .btn').show();
       $('#modal-window').modal('show');
     });
   });
-}
+};
 
 // Get user info
 module.exports.showUserInfo = function() {
@@ -521,15 +519,15 @@ module.exports.showUserInfo = function() {
 module.exports.setTimeout = function(sessionTimeout) {
   var messageObj = {
     service: 'ewd-vista-login',
-    type: "setTimeout",
+    type: 'setTimeout',
     params: {
       timeout: sessionTimeout
     }
-  }
+  };
   EWD.send(messageObj, function(responseObj) {
     // 
   });
-}
+};
 
 
 
