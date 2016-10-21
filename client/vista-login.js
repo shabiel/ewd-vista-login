@@ -1,19 +1,23 @@
+var toastr = require('toastr');
+
+var clientMethods = {};
+
 /* Initialize ST management then call to see if we can log on */
-module.exports.preLogin1 = function(EWD) {
-  var messageObj = {
+clientMethods.preLogin1 = function(EWD) {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'initialise'
   };
   EWD.send(messageObj, function(responseObj) {
-    var messageObj2 = {
+    let messageObj = {
       service: 'ewd-vista-login',
       type: 'isLogonInhibited'};
-    EWD.send(messageObj2, this.preLogin2);
+    EWD.send(messageObj, clientMethods.preLogin2(EWD));
   });
 };
 
 /* Handle reply from isLogonInhibited */
-module.exports.preLogin2 = function(responseObj) {
+clientMethods.preLogin2 = function(responseObj, EWD) {
   if (responseObj.message.isLogOnProhibited)
   {
     $('#modal-window').html('<h1>Log-ons are Prohibited.</h1>').removeClass('modal').removeClass('fade').addClass('jumbotron');
@@ -25,20 +29,20 @@ module.exports.preLogin2 = function(responseObj) {
     return;
   }
 
-  var params = {
+  let params = {
     service: 'ewd-vista-login',
     name: 'login.html',
     targetId: 'modal-window'
   };
-  EWD.getFragment(params, this.login); 
+  EWD.getFragment(params, clientMethods.login(EWD)); 
 };
 
 // Called from getFragment in preLogin2.
-module.exports.login = function() {
+clientMethods.login = function(EWD) {
   // Handle click of Login Button
   $('#loginBtn').on('click', function(e) {
-    var ac = $('#username').val();
-    var vc = $('#password').val();
+    let ac = $('#username').val();
+    let vc = $('#password').val();
     if (ac === '' || vc === '')
     {
       toastr.options.target = '#modal-dialog';
@@ -46,7 +50,7 @@ module.exports.login = function() {
       return;
     }
 
-    var messageObj = {
+    let messageObj = {
       service: 'ewd-vista-login',
       type: 'login',
       params: {
@@ -55,7 +59,7 @@ module.exports.login = function() {
       }
     };
 
-    EWD.send(messageObj, loggingIn);
+    EWD.send(messageObj, clientMethods.loggingIn(EWD));
   });
   
   // Handle enter and escape keys
@@ -66,7 +70,7 @@ module.exports.login = function() {
     }
     // Set up Esc key
     if (event.keyCode === 27) {
-      this.logout();
+      clientMethods.logout();
     }
   });
   
@@ -80,7 +84,7 @@ module.exports.login = function() {
   $('#modal-window').modal('show');
   
   // Load into message last so user's aren't required to wait for it
-  var messageObj = {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: {
@@ -90,8 +94,8 @@ module.exports.login = function() {
   
   EWD.send(messageObj, function(responseObj)
   {
-    var arr = [];
-    for (var i in responseObj.message.value)
+    let arr = [];
+    for (let i in responseObj.message.value)
     {
       arr.push(responseObj.message.value[i]);  
     }
@@ -102,7 +106,7 @@ module.exports.login = function() {
 // This is what happens after we send the ac/vc to VISTA.
 // responseObj contains the greeting or the error message.
 // Invoked by click handler from log-in form above.
-module.exports.loggingIn = function(responseObj) {
+clientMethods.loggingIn = function(responseObj, EWD) {
   // Handle that we can't log in!
   if (responseObj.message.error)
   {
@@ -120,7 +124,7 @@ module.exports.loggingIn = function(responseObj) {
     toastr.warning('Verify Code Must be Changed!');
     
     $('#modal-window').one('hidden.bs.modal', function() {
-      var params = {
+      let params = {
         service: 'ewd-vista-login',
         name: 'cvc.html',
         targetId: 'modal-window',
@@ -129,7 +133,7 @@ module.exports.loggingIn = function(responseObj) {
       EWD.getFragment(params, function (oldPassword) {
         return function ()
         {
-          this.showCVC(oldPassword);
+          clientMethods.showCVC(oldPassword, EWD);
         };
       }($('#password').val()));
     });
@@ -139,7 +143,7 @@ module.exports.loggingIn = function(responseObj) {
   // Otherwise (no change verify code), select division on hide event
   else {
     $('#modal-window').one('hidden.bs.modal', function() {
-      this.selectDivision();
+      clientMethods.selectDivision(EWD);
     });
     
     $('#modal-window').modal('hide');
@@ -152,7 +156,7 @@ module.exports.loggingIn = function(responseObj) {
    verify code change. So I had to take tons of precautions so that
    that won't happen. That includes doing all the verify code checking
    at the client side. */
-module.exports.showCVC = function(oldPassword) {
+clientMethods.showCVC = function(oldPassword, EWD) {
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
@@ -168,9 +172,9 @@ module.exports.showCVC = function(oldPassword) {
  
   // Change Verify Code event handling 
   $('#cvcChangeBtn').on('click', function(e){
-    var oldVC = $('#oldVC').val();
-    var newVC1 = $('#newVC1').val();
-    var newVC2 = $('#newVC2').val();
+    let oldVC = $('#oldVC').val();
+    let newVC1 = $('#newVC1').val();
+    let newVC2 = $('#newVC2').val();
     toastr.options.target = '#modal-window';
     if (newVC1 !== newVC2)
     {
@@ -184,11 +188,11 @@ module.exports.showCVC = function(oldPassword) {
     }
 
     /* Thank you Stack Overflow for this! */
-    var hasAlpha = (/[A-Za-z]+/).test(newVC1),
+    let hasAlpha = (/[A-Za-z]+/).test(newVC1),
       hasNumber = (/[0-9]+/).test(newVC1),
       specials = (/[^A-Za-z0-9]+/).test(newVC1);
     if (hasAlpha && hasNumber && specials) {
-      this.doCVC(oldVC, newVC1, newVC2);
+      clientMethods.doCVC(oldVC, newVC1, newVC2, EWD);
     }
     else {
       /* Message taken from XUSRB */
@@ -200,7 +204,7 @@ module.exports.showCVC = function(oldPassword) {
   // Cancel Change -- just log-out.
   $('#cvcCancelBtn').one('click', function(event){
     $('#modal-window').modal('hide');
-    this.logout();
+    clientMethods.logout(EWD);
   });
 
   // Handle enter and escape.
@@ -215,8 +219,8 @@ module.exports.showCVC = function(oldPassword) {
 };
 
 // Change verify code action. Called from form immediately above.
-module.exports.doCVC = function(oldVC, newVC1, newVC2) {
-  var messageObj = {
+clientMethods.doCVC = function(oldVC, newVC1, newVC2, EWD) {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'cvc',
     params: {
@@ -226,13 +230,13 @@ module.exports.doCVC = function(oldVC, newVC1, newVC2) {
     }
   };
 
-  EWD.send(messageObj, this.CVCPost);
+  EWD.send(messageObj, clientMethods.CVCPost(EWD));
 };
 
 /* Verify code Change message from cvc call. Just say if we succceeded, 
  * or log-out if we failed (we don't have any other choice b/c of the 
  * dirty logic in XUSRB). */
-module.exports.CVCPost = function(responseObj) {
+clientMethods.CVCPost = function(responseObj, EWD) {
   // Below line is necessary because click sometimes fires twice (don't exactly know why)
   if (responseObj.message.ok)
   {
@@ -241,7 +245,7 @@ module.exports.CVCPost = function(responseObj) {
   else
   {
     $('#modal-window').one('hidden.bs.modal', function() {
-      this.logout();
+      clientMethods.logout(EWD);
     });
     toastr.error(responseObj.message.error);
   }
@@ -253,12 +257,12 @@ module.exports.CVCPost = function(responseObj) {
 // XUS DIVISION GET will set the division if there are zero or one divisions
 // available for the user. We don't need to call XUS DIVISION SET to set the
 // division. If there is more than one, supply user's choice to XUS DIVISON SET.
-module.exports.selectDivision = function() {
+clientMethods.selectDivision = function(EWD) {
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
   
-  var messageObj = {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: {
@@ -269,11 +273,11 @@ module.exports.selectDivision = function() {
   EWD.send(messageObj, function(responseObj) {
     responseObj.message.value.splice(0,1); // Remove array length element
     
-    var divisions = [];
+    let divisions = [];
     responseObj.message.value.forEach(function(element, index, array) {
       element = element.split('^');
 
-      var division     = {};
+      let division     = {};
       division.ien     = element[0];
       division.name    = element[1];
       division.code    = element[2];
@@ -284,11 +288,11 @@ module.exports.selectDivision = function() {
     
     // We are done with selecting division if selectable list is 0. Move to next task. 
     if (divisions.length == 0) {
-      this.setContext();
+      clientMethods.setContext();
     }
     // Ask a user to select a division.
     else if (divisions.length > 0) {
-      var params = {
+      let params = {
         service: 'ewd-vista-login',
         name: 'division.html',
         targetId: 'modal-window',
@@ -296,7 +300,7 @@ module.exports.selectDivision = function() {
       
       EWD.getFragment(params, function() {
         // Build division list; and mark default and enable OK if VISTA has a default assigned.
-        var optionsHtml = '';
+        let optionsHtml = '';
         divisions.forEach(function(element, index, array) {
           optionsHtml = optionsHtml + '<option value=" + element.ien + "';
           if (element.default) {
@@ -313,12 +317,12 @@ module.exports.selectDivision = function() {
         
         // Set up buttons
         $('#ok-button').one('click', function(e) {
-          var ien = $('#division').val();
+          let ien = $('#division').val();
           $('#modal-window').modal('hide');
-          this.setDivision(ien);
+          clientMethods.setDivision(ien, EWD);
         });
         $('#cancel-button').one('click', function(e) {
-          this.logout();
+          clientMethods.logout();
         });
         // Handle return and escape keys
         $(document).one('keydown', function(event){
@@ -341,8 +345,8 @@ module.exports.selectDivision = function() {
 }; // VISTA.selectDivision
 
 // Sets division if necessary. Called from selectDivision
-module.exports.setDivision = function(ien) {
-  var messageObj = {
+clientMethods.setDivision = function(ien, EWD) {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: {
@@ -358,21 +362,21 @@ module.exports.setDivision = function(ien) {
   EWD.send(messageObj, function(responseObj){
     if (responseObj.message.value != 1) {
       toastr.error('Failed to set division');
-      this.logout();
+      clientMethods.logout(EWD);
     }
     
-    this.setContext();
+    clientMethods.setContext(EWD);
   });
 };
 
 /* Create Context Call -- Right now, hardcoded to OR CPRS GUI CHART */
-/* I will be getting rid of this as I want to get rid of setting 
+/* I will be getting rid of clientMethods as I want to get rid of setting 
  * context on the client side. I want it dealt with transparently on the
  * server side. */
-module.exports.setContext = function(responseObj) {
+clientMethods.setContext = function(responseObj, EWD) {
   $('#modal-window').modal('hide');
   
-  var messageObj = {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: {
@@ -388,16 +392,16 @@ module.exports.setContext = function(responseObj) {
   EWD.send(messageObj, function(responseObj){
     if (responseObj.message.value != 1) {
       toastr.error(responseObj.message.value);
-      logout();
+      clientMethods.logout(EWD);
     }
     else { 
-      this.showNav(); 
+      clientMethods.showNav(EWD); 
     }
   });  
 };
 
 /* Log out functionality */
-logout = function() {
+logout = function(EWD) {
   toastr.info('Logging Out!');
   
   params ={
@@ -413,50 +417,50 @@ logout = function() {
 /* THIS IS THE FIRST NON-LOGIN RELATED FUNCTION */
 
 /* Shows navbar and associates the logout button */
-module.exports.showNav = function () {
-  $('#symbols-button').one('click', this.showSymbolTable);
-  $('#logout-button').one('click', this.logout);
-  this.showUserInfo();
+clientMethods.showNav = function (EWD) {
+  $('#symbols-button').one('click', clientMethods.showSymbolTable(EWD));
+  $('#logout-button').one('click', clientMethods.logout(EWD));
+  clientMethods.showUserInfo(EWD);
   $('nav').show();
 };
 
 // Get symbol table from server (Button on Navbar)
-module.exports.showSymbolTable = function() {
+clientMethods.showSymbolTable = function(EWD) {
   console.log('Success');
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
   
   // Load into message last so user's aren't required to wait for it
-  var messageObj = {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: { rpcName: 'ORWUX SYMTAB' }
   };
   
   EWD.send(messageObj, function(responseObj) {
-    var symbolTable = responseObj.message.value;
+    let symbolTable = responseObj.message.value;
     
     // Fix structure of symbol table object
-    var jsonSymbolTable = {};
-    var keys = Object.keys(symbolTable);
-    for (var i=0; i<keys.length; i=i+2) {
+    let jsonSymbolTable = {};
+    let keys = Object.keys(symbolTable);
+    for (let i=0; i<keys.length; i=i+2) {
       jsonSymbolTable[symbolTable[keys[i]]] = symbolTable[keys[i + 1]];
     }
     // Convert object to text
-    var symbolTableHtml = JSON.stringify(jsonSymbolTable, null, 1);
+    let symbolTableHtml = JSON.stringify(jsonSymbolTable, null, 1);
     // Remove outer braces and whitespace
     symbolTableHtml = symbolTableHtml.slice(2,-1);
     /*
     Fix format based on what Mumps programmers will expect to see and hope for
-    the absence of inconvenient patterns in variable values
+    the absence of inconvenient patterns in letiable values
     */
     symbolTableHtml = symbolTableHtml.replace(/^\s'/,'');
     symbolTableHtml = symbolTableHtml.replace(/.\n\s'/g,'\n\n');
     symbolTableHtml = symbolTableHtml.replace(/': /g, '=');
     symbolTableHtml = symbolTableHtml.replace(/\\'/g, '');
     
-    var params = {
+    let params = {
       service: 'ewd-vista-login',
       name: 'symbol-table.html',
       targetId: 'modal-window',
@@ -467,7 +471,7 @@ module.exports.showSymbolTable = function() {
       $('#symbol-table').append(symbolTableHtml);
 
       $('#modal-window').on('hidden.bs.modal', function() {
-        $('#symbols-button').one('click', this.showSymbolTable);
+        $('#symbols-button').one('click', clientMethods.showSymbolTable(EWD));
       });
 
       // Set up button to dismiss modal
@@ -488,8 +492,8 @@ module.exports.showSymbolTable = function() {
 };
 
 // Get user info
-module.exports.showUserInfo = function() {
-  var messageObj = {
+clientMethods.showUserInfo = function(EWD) {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: {
@@ -498,7 +502,7 @@ module.exports.showUserInfo = function() {
   };
   
   EWD.send(messageObj, function(responseObj) {
-    var info = responseObj.message.value;
+    let info = responseObj.message.value;
     
     // List user name in nav
     $('#user-name').prepend(info[1]);
@@ -512,12 +516,12 @@ module.exports.showUserInfo = function() {
     $('#user-dtime').append(info[7] + ' s');
     
     // Use DTIME to set session timeout
-    this.setTimeout(info[7]);
+    clientMethods.setTimeout(info[7], EWD);
   });
 };
 
-module.exports.setTimeout = function(sessionTimeout) {
-  var messageObj = {
+clientMethods.setTimeout = function(sessionTimeout, EWD) {
+  let messageObj = {
     service: 'ewd-vista-login',
     type: 'setTimeout',
     params: {
@@ -529,9 +533,4 @@ module.exports.setTimeout = function(sessionTimeout) {
   });
 };
 
-
-
-
-
-
-
+module.exports = clientMethods;
