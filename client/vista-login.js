@@ -12,7 +12,9 @@ clientMethods.preLogin1 = function(EWD) {
     let messageObj = {
       service: 'ewd-vista-login',
       type: 'isLogonInhibited'};
-    EWD.send(messageObj, clientMethods.preLogin2(EWD));
+    EWD.send(messageObj, function(responseObj2) {
+      clientMethods.preLogin2(responseObj2, EWD);
+    });
   });
 };
 
@@ -34,7 +36,9 @@ clientMethods.preLogin2 = function(responseObj, EWD) {
     name: 'login.html',
     targetId: 'modal-window'
   };
-  EWD.getFragment(params, clientMethods.login(EWD)); 
+  EWD.getFragment(params, function() {
+    clientMethods.login(EWD);
+  });
 };
 
 // Called from getFragment in preLogin2.
@@ -58,8 +62,9 @@ clientMethods.login = function(EWD) {
         vc: vc
       }
     };
-
-    EWD.send(messageObj, clientMethods.loggingIn(EWD));
+    EWD.send(messageObj, function( responseObj ) {
+      clientMethods.loggingIn( responseObj, EWD );
+    });
   });
   
   // Handle enter and escape keys
