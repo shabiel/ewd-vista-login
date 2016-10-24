@@ -62,8 +62,8 @@ clientMethods.login = function(EWD) {
         vc: vc
       }
     };
-    EWD.send(messageObj, function( responseObj ) {
-      clientMethods.loggingIn( responseObj, EWD );
+    EWD.send(messageObj, function(responseObj) {
+      clientMethods.loggingIn(responseObj, EWD);
     });
   });
   
@@ -75,7 +75,7 @@ clientMethods.login = function(EWD) {
     }
     // Set up Esc key
     if (event.keyCode === 27) {
-      clientMethods.logout();
+      clientMethods.logout(EWD);
     }
   });
   
@@ -97,8 +97,7 @@ clientMethods.login = function(EWD) {
     }
   };
   
-  EWD.send(messageObj, function(responseObj)
-  {
+  EWD.send(messageObj, function(responseObj) {
     let arr = [];
     for (let i in responseObj.message.value)
     {
@@ -136,8 +135,7 @@ clientMethods.loggingIn = function(responseObj, EWD) {
       };
       // Password is closured for its own protection.
       EWD.getFragment(params, function (oldPassword) {
-        return function ()
-        {
+        return function () {
           clientMethods.showCVC(oldPassword, EWD);
         };
       }($('#password').val()));
@@ -197,6 +195,7 @@ clientMethods.showCVC = function(oldPassword, EWD) {
       hasNumber = (/[0-9]+/).test(newVC1),
       specials = (/[^A-Za-z0-9]+/).test(newVC1);
     if (hasAlpha && hasNumber && specials) {
+      console.log('Old verify code: ' + oldVC);
       clientMethods.doCVC(oldVC, newVC1, newVC2, EWD);
     }
     else {
@@ -235,20 +234,22 @@ clientMethods.doCVC = function(oldVC, newVC1, newVC2, EWD) {
     }
   };
 
-  EWD.send(messageObj, clientMethods.CVCPost(EWD));
+  EWD.send(messageObj, function(responseObj) {
+    clientMethods.CVCPost(responseObj, EWD);
+  });
 };
 
 /* Verify code Change message from cvc call. Just say if we succceeded, 
  * or log-out if we failed (we don't have any other choice b/c of the 
  * dirty logic in XUSRB). */
 clientMethods.CVCPost = function(responseObj, EWD) {
-  // Below line is necessary because click sometimes fires twice (don't exactly know why)
-  if (responseObj.message.ok)
-  {
+  if (responseObj.message.ok) {
+    $('#modal-window').one('hidden.bs.modal', function() {
+      clientMethods.selectDivision(EWD);
+    });
     toastr.success('Verify Code changed');
   }
-  else
-  {
+  else {
     $('#modal-window').one('hidden.bs.modal', function() {
       clientMethods.logout(EWD);
     });
@@ -293,7 +294,7 @@ clientMethods.selectDivision = function(EWD) {
     
     // We are done with selecting division if selectable list is 0. Move to next task. 
     if (divisions.length == 0) {
-      clientMethods.setContext();
+      clientMethods.setContext(EWD);
     }
     // Ask a user to select a division.
     else if (divisions.length > 0) {
@@ -307,7 +308,7 @@ clientMethods.selectDivision = function(EWD) {
         // Build division list; and mark default and enable OK if VISTA has a default assigned.
         let optionsHtml = '';
         divisions.forEach(function(element, index, array) {
-          optionsHtml = optionsHtml + '<option value=" + element.ien + "';
+          optionsHtml = optionsHtml + '<option value="' + element.ien + '"';
           if (element.default) {
             optionsHtml = optionsHtml + ' selected';
             $('#ok-button').removeAttr('disabled'); // Enable OK button
@@ -327,7 +328,7 @@ clientMethods.selectDivision = function(EWD) {
           clientMethods.setDivision(ien, EWD);
         });
         $('#cancel-button').one('click', function(e) {
-          clientMethods.logout();
+          clientMethods.logout(EWD);
         });
         // Handle return and escape keys
         $(document).one('keydown', function(event){
@@ -362,7 +363,6 @@ clientMethods.setDivision = function(ien, EWD) {
       }]
     }
   };
-
   // If setting the division fails, close the application
   EWD.send(messageObj, function(responseObj){
     if (responseObj.message.value != 1) {
@@ -378,7 +378,7 @@ clientMethods.setDivision = function(ien, EWD) {
 /* I will be getting rid of clientMethods as I want to get rid of setting 
  * context on the client side. I want it dealt with transparently on the
  * server side. */
-clientMethods.setContext = function(responseObj, EWD) {
+clientMethods.setContext = function(EWD) {
   $('#modal-window').modal('hide');
   
   let messageObj = {
@@ -395,6 +395,9 @@ clientMethods.setContext = function(responseObj, EWD) {
 
   // If we can't set the context, close the application
   EWD.send(messageObj, function(responseObj){
+    console.log('Mark');
+    console.log(responseObj);
+    
     if (responseObj.message.value != 1) {
       toastr.error(responseObj.message.value);
       clientMethods.logout(EWD);
@@ -406,7 +409,7 @@ clientMethods.setContext = function(responseObj, EWD) {
 };
 
 /* Log out functionality */
-logout = function(EWD) {
+clientMethods.logout = function(EWD) {
   toastr.info('Logging Out!');
   
   params ={
@@ -423,15 +426,20 @@ logout = function(EWD) {
 
 /* Shows navbar and associates the logout button */
 clientMethods.showNav = function (EWD) {
-  $('#symbols-button').one('click', clientMethods.showSymbolTable(EWD));
-  $('#logout-button').one('click', clientMethods.logout(EWD));
+  $('#symbols-button').one('click', function() {
+    clientMethods.showSymbolTable(EWD);
+  });
+  $('#logout-button').one('click', function() {
+    clientMethods.logout(EWD);
+  });
+  
+  // $('#user-name,.user-info').on('click', function(e) { return false });
+  
   clientMethods.showUserInfo(EWD);
-  $('nav').show();
 };
 
 // Get symbol table from server (Button on Navbar)
 clientMethods.showSymbolTable = function(EWD) {
-  console.log('Success');
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
@@ -476,7 +484,9 @@ clientMethods.showSymbolTable = function(EWD) {
       $('#symbol-table').append(symbolTableHtml);
 
       $('#modal-window').on('hidden.bs.modal', function() {
-        $('#symbols-button').one('click', clientMethods.showSymbolTable(EWD));
+        $('#symbols-button').one('click', function() {
+          clientMethods.showSymbolTable(EWD);
+        });
       });
 
       // Set up button to dismiss modal
@@ -519,6 +529,8 @@ clientMethods.showUserInfo = function(EWD) {
     $('#user-service').append(info[5]);
     $('#user-language').append(info[6]);
     $('#user-dtime').append(info[7] + ' s');
+    
+    $('#navbar').removeClass('invisible');
     
     // Use DTIME to set session timeout
     clientMethods.setTimeout(info[7], EWD);
