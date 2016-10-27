@@ -8,5 +8,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shabiel/ewd-vista-login.git"
+  },
+  "devDependencies": {
+    "mocha": "~3.1"
   }
 }
