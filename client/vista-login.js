@@ -1,5 +1,3 @@
-var toastr = require('toastr');
-
 var clientMethods = {};
 
 /* Initialize ST management then call to see if we can log on */
