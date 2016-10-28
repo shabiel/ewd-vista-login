@@ -10,7 +10,6 @@
     "url": "git+https://github.com/shabiel/ewd-vista-login.git"
   },
   "devDependencies": {
-    "dalekjs": "0.0.9",
     "mocha": "~3.1"
   }
 }
