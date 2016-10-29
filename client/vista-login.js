@@ -393,7 +393,7 @@ clientMethods.setContext = function(EWD) {
 
   // If we can't set the context, close the application
   EWD.send(messageObj, function(responseObj){
-    console.log('Mark');
+    // TODO Remove
     console.log(responseObj);
     
     if (responseObj.message.value != 1) {
