@@ -4,6 +4,11 @@ describe('ewd-vista-login', function() {
     // 
   });
   
+  beforeEach(function(){
+    // Immediately clear any lingering Toastr messages
+    toastr.remove();
+  })
+  
   describe('login', function() {
     it('should log into VistA', function(done) {
       $('#modal-window').one('shown.bs.modal', function() {
@@ -11,39 +16,46 @@ describe('ewd-vista-login', function() {
         $('#password').val('NEVR2NEW$%!');
         $('#loginBtn').click();
       
-        $('#modal-window').one('shown.bs.modal', function() {
-          // Clear Toastr event handler for fail case
-          toastr.options.onShown = function() {};
-          
-          done();
-        });
-        
         toastr.options.onShown = function() {
-          // Clear jQuery event handler for success case
-          $('#modal-window').off('shown.bs.modal');
-          
-          let error = new Error($('.toast-message').text());
-          
-          // Clear Toastr event handler for fail case
+          // Clear Toastr event handler
           toastr.options.onShown = function() {};
           
-          done(error);
+          if ($('.toast-error').length) {
+            let error = new Error($('.toast-message').text());
+          
+            done(error);
+          }
+          else if ($('.toast-success').length) {
+            done();
+          }
         };
       });
     });
   });
   
-  // if ($('.modal-content.division').length) {
-  //   describe('division', function() {
-  //     it('should set a divsion', function(done) {
-  //       $('ok-button').click();
-  //
-  //       done();
-  //     });
-  //   });
-  // }
+  if ($('.modal-content.division').length) {
+    describe('division', function() {
+      it('should set a divsion', function(done) {
+        $('ok-button').click();
+
+        toastr.options.onShown = function() {
+          // Clear Toastr event handler
+          toastr.options.onShown = function() {};
+          
+          if ($('.toast-error').length) {
+            let error = new Error($('.toast-message').text());
+          
+            done(error);
+          }
+          else if ($('.toast-success').length) {
+            done();
+          }
+        };
+      });
+    });
+  }
   
   after(function() {
-    $('#modal-window').hide();
+    // $('#modal-window').modal('hide');
   });
 });
