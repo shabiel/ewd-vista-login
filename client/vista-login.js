@@ -109,11 +109,13 @@ clientMethods.login = function(EWD) {
 // responseObj contains the greeting or the error message.
 // Invoked by click handler from log-in form above.
 clientMethods.loggingIn = function(responseObj, EWD) {
+  EWD.emit('loginStatus', responseObj);
+  
   // Handle that we can't log in!
-  if (responseObj.message.error)
-  {
+  if (responseObj.message.error) {
     toastr.options.target = '#modal-dialog';
     toastr.error(responseObj.message.error);
+    
     return;
   }
 
@@ -342,7 +344,9 @@ clientMethods.selectDivision = function(EWD) {
         
         // Show divisions modal
         $('#modal-window .btn').show();
-        $('#modal-window').modal('show');          
+        $('#modal-window').modal('show');
+        
+        EWD.emit('setDivisionReady');
       });
     }
   }); // EWD.send
@@ -363,6 +367,8 @@ clientMethods.setDivision = function(ien, EWD) {
   };
   // If setting the division fails, close the application
   EWD.send(messageObj, function(responseObj){
+    EWD.emit('setDivisionStatus', responseObj);
+    
     if (responseObj.message.value != 1) {
       toastr.error('Failed to set division');
       clientMethods.logout(EWD);
