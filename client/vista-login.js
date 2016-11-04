@@ -399,10 +399,10 @@ clientMethods.setContext = function(EWD) {
 
   // If we can't set the context, close the application
   EWD.send(messageObj, function(responseObj){
-    // TODO Remove
-    console.log(responseObj);
+    EWD.emit('setContextStatus', responseObj);
     
     if (responseObj.message.value != 1) {
+      EWD.emit('setContextStatus') 
       toastr.error(responseObj.message.value);
       clientMethods.logout(EWD);
     }
@@ -437,9 +437,55 @@ clientMethods.showNav = function (EWD) {
     clientMethods.logout(EWD);
   });
   
-  // $('#user-name,.user-info').on('click', function(e) { return false });
+  $('.user-info').on('click', function(e) { return false });
   
   clientMethods.showUserInfo(EWD);
+};
+
+// Get user info
+clientMethods.showUserInfo = function(EWD) {
+  let messageObj = {
+    service: 'ewd-vista-login',
+    type: 'RPC',
+    params: {
+      rpcName: 'XUS GET USER INFO'
+    }
+  };
+  
+  EWD.send(messageObj, function(responseObj) {
+    EWD.emit('showUserInfoStatus', responseObj);
+    
+    let info = responseObj.message.value;
+    
+    // List user name in nav
+    $('#user-name').prepend(info[1]);
+    // Build user info
+    $('#user-duz').append(info[0]);
+    $('#user-fullname').append(info[2]);
+    $('#user-title').append(info[4]);
+    $('#user-division').append(info[3].split('^')[1]);
+    $('#user-service').append(info[5]);
+    $('#user-language').append(info[6]);
+    $('#user-dtime').append(info[7] + ' s');
+    
+    $('#navbar').removeClass('invisible');
+    
+    // Use DTIME to set session timeout
+    clientMethods.setTimeout(info[7], EWD);
+  });
+};
+
+clientMethods.setTimeout = function(sessionTimeout, EWD) {
+  let messageObj = {
+    service: 'ewd-vista-login',
+    type: 'setTimeout',
+    params: {
+      timeout: sessionTimeout
+    }
+  };
+  EWD.send(messageObj, function(responseObj) {
+    EWD.emit('setTimeoutStatus', responseObj);
+  });
 };
 
 // Get symbol table from server (Button on Navbar)
@@ -506,51 +552,9 @@ clientMethods.showSymbolTable = function(EWD) {
       // Show modal
       $('#modal-window .btn').show();
       $('#modal-window').modal('show');
+      
+      EWD.emit('showSymbolTableReady');
     });
-  });
-};
-
-// Get user info
-clientMethods.showUserInfo = function(EWD) {
-  let messageObj = {
-    service: 'ewd-vista-login',
-    type: 'RPC',
-    params: {
-      rpcName: 'XUS GET USER INFO'
-    }
-  };
-  
-  EWD.send(messageObj, function(responseObj) {
-    let info = responseObj.message.value;
-    
-    // List user name in nav
-    $('#user-name').prepend(info[1]);
-    // Build user info
-    $('#user-duz').append(info[0]);
-    $('#user-fullname').append(info[2]);
-    $('#user-title').append(info[4]);
-    $('#user-division').append(info[3].split('^')[1]);
-    $('#user-service').append(info[5]);
-    $('#user-language').append(info[6]);
-    $('#user-dtime').append(info[7] + ' s');
-    
-    $('#navbar').removeClass('invisible');
-    
-    // Use DTIME to set session timeout
-    clientMethods.setTimeout(info[7], EWD);
-  });
-};
-
-clientMethods.setTimeout = function(sessionTimeout, EWD) {
-  let messageObj = {
-    service: 'ewd-vista-login',
-    type: 'setTimeout',
-    params: {
-      timeout: sessionTimeout
-    }
-  };
-  EWD.send(messageObj, function(responseObj) {
-    // 
   });
 };
 
