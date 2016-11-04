@@ -316,8 +316,10 @@ clientMethods.selectDivision = function(EWD) {
           optionsHtml = optionsHtml   + '>' + element.name + '  (' + element.code + ')' + '</option>';
         });
         
-        $('#division').append(optionsHtml); // Populate select with options
-        $('#division').change(event, function() { // if user selects an item, enable Ok button regardless
+        // Populate select with options
+        $('#division').append(optionsHtml);
+        $('#division').change(function() {
+          // if user selects an item, enable Ok button in case there is no default division
           $('#ok-button').removeAttr('disabled');
         }); 
         
