@@ -346,6 +346,7 @@ clientMethods.selectDivision = function(EWD) {
         
         // Show divisions modal
         $('#modal-window .btn').show();
+        // Add event handler!!!
         $('#modal-window').modal('show');
         
         EWD.emit('setDivisionReady');
@@ -504,6 +505,8 @@ clientMethods.showSymbolTable = function(EWD) {
   };
   
   EWD.send(messageObj, function(responseObj) {
+    EWD.emit('showSymbolTableStatus', responseObj);
+    
     let symbolTable = responseObj.message.value;
     
     // Fix structure of symbol table object
@@ -554,8 +557,6 @@ clientMethods.showSymbolTable = function(EWD) {
       // Show modal
       $('#modal-window .btn').show();
       $('#modal-window').modal('show');
-      
-      EWD.emit('showSymbolTableReady');
     });
   });
 };

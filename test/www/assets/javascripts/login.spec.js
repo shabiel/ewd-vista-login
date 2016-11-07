@@ -72,7 +72,7 @@ describe('ewd-vista-login', function() {
   describe('showUserInfo', function() {
     it('should collect user info', function(done) {
       EWD.on('showUserInfoStatus', function(responseObj) {
-        if (typeof(responseObj.message.value) != 'object') {
+        if (responseObj.message.type != 'ARRAY') {
           let error = new Error('Failed to get user info');
       
           done(error);
@@ -84,10 +84,38 @@ describe('ewd-vista-login', function() {
     });
   });
   
+    describe('showSymbolTable', function() {
+      it('should return the symbol table', function(done) {
+        // This is heavy handed, but necessary to completely clear the modal
+        $('#modal-window').one('shown.bs.modal', function() {
+          $('#modal-window').modal('hide');
+          $('.modal-backdrop').remove();
+        });
+        
+        EWD.on('showSymbolTableStatus', function(responseObj) {
+          
+          
+          
+          
+          if (responseObj.message.type != 'GLOBAL ARRAY') {
+            let error = new Error('Failed to get user info');
+    
+            done(error);
+          }
+          else {
+            done();
+          }
+        }, true);
+      
+        $('#symbols-button').click();
+      });
+    });
+  
   after(function() {
     // Immediately clear any lingering Toastr messages
     toastr.remove();
     // Make sure screen is clear so test results can be seen
     $('#modal-window').modal('hide');
+    $('.modal-backdrop').remove();
   });
 });
