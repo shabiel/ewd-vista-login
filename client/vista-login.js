@@ -410,7 +410,7 @@ clientMethods.setContext = function(EWD) {
     EWD.emit('setContextStatus', responseObj);
     
     if (responseObj.message.value != 1) {
-      EWD.emit('setContextStatus') 
+      EWD.emit('setContextStatus');
       toastr.error(responseObj.message.value);
       clientMethods.logout(EWD);
     }
@@ -445,7 +445,7 @@ clientMethods.showNav = function (EWD) {
     clientMethods.logout(EWD);
   });
   
-  $('.user-info').on('click', function(e) { return false });
+  $('.user-info').on('click', function(e) { return false; });
   
   clientMethods.showUserInfo(EWD);
 };
