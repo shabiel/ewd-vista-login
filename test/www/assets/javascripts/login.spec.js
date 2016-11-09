@@ -89,7 +89,7 @@ describe('ewd-vista-login', function() {
     it('should return the symbol table', function(done) {
       EWD.on('showSymbolTableStatus', function(responseObj) {
         if (responseObj.message.type != 'GLOBAL ARRAY') {
-          let error = new Error('Failed to get user info');
+          let error = new Error('Failed to get symbol table');
 
           done(error);
         }
