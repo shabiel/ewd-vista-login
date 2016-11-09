@@ -84,38 +84,35 @@ describe('ewd-vista-login', function() {
     });
   });
   
-    describe('showSymbolTable', function() {
-      it('should return the symbol table', function(done) {
-        // This is heavy handed, but necessary to completely clear the modal
-        $('#modal-window').one('shown.bs.modal', function() {
-          $('#modal-window').modal('hide');
-          $('.modal-backdrop').remove();
-        });
-        
-        EWD.on('showSymbolTableStatus', function(responseObj) {
-          
-          
-          
-          
-          if (responseObj.message.type != 'GLOBAL ARRAY') {
-            let error = new Error('Failed to get user info');
-    
-            done(error);
-          }
-          else {
-            done();
-          }
-        }, true);
+  
+  describe('showSymbolTable', function() {
+    it('should return the symbol table', function(done) {
+      EWD.on('showSymbolTableStatus', function(responseObj) {
+        if (responseObj.message.type != 'GLOBAL ARRAY') {
+          let error = new Error('Failed to get user info');
+
+          done(error);
+        }
+        else {
+          done();
+        }
+      }, true);
       
-        $('#symbols-button').click();
+      $('#modal-window').one('shown.bs.modal', function() {
+        $('#ok-button').click();
       });
+
+      $('#symbols-button').click();
     });
+  });
   
   after(function() {
     // Immediately clear any lingering Toastr messages
     toastr.remove();
+    
+    // I don't think this is any longer necessary
     // Make sure screen is clear so test results can be seen
-    $('#modal-window').modal('hide');
-    $('.modal-backdrop').remove();
+    // $('#modal-window').modal('hide');
+    // $('.modal-backdrop').remove();
   });
 });

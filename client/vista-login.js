@@ -326,8 +326,12 @@ clientMethods.selectDivision = function(EWD) {
         // Set up buttons
         $('#ok-button').one('click', function(e) {
           let ien = $('#division').val();
+          
+          $('#modal-window').one('hidden.bs.modal', function() {
+            clientMethods.setDivision(ien, EWD);
+          });
+          
           $('#modal-window').modal('hide');
-          clientMethods.setDivision(ien, EWD);
         });
         $('#cancel-button').one('click', function(e) {
           clientMethods.logout(EWD);
@@ -344,12 +348,13 @@ clientMethods.selectDivision = function(EWD) {
           }
         });
         
+        $('#modal-window').one('shown.bs.modal', function() {
+          EWD.emit('setDivisionReady');
+        });
+        
         // Show divisions modal
         $('#modal-window .btn').show();
-        // Add event handler!!!
         $('#modal-window').modal('show');
-        
-        EWD.emit('setDivisionReady');
       });
     }
   }); // EWD.send
@@ -504,9 +509,7 @@ clientMethods.showSymbolTable = function(EWD) {
     params: { rpcName: 'ORWUX SYMTAB' }
   };
   
-  EWD.send(messageObj, function(responseObj) {
-    EWD.emit('showSymbolTableStatus', responseObj);
-    
+  EWD.send(messageObj, function(responseObj) {    
     let symbolTable = responseObj.message.value;
     
     // Fix structure of symbol table object
@@ -548,10 +551,15 @@ clientMethods.showSymbolTable = function(EWD) {
       $('#ok-button').one('click', function() {
         $('#modal-window').modal('hide');
       });
+      
       $(document).one('keydown', function(event) {
         if ((event.keyCode === 13) || (event.keyCode === 27)) {
           $('#ok-button').click();
         }
+      });
+      
+      $('#modal-window').one('shown.bs.modal', function() {
+        EWD.emit('showSymbolTableStatus', responseObj);
       });
 
       // Show modal
