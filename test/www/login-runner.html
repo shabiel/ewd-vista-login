@@ -78,13 +78,12 @@
         ui: 'bdd',
         reporter: 'html',
         ignoreLeaks: true,
-        timeout: 30000
+        timeout: 5000
       });
     </script>
     <script src="assets/javascripts/login.spec.js"></script>
     <script>
-      if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-      else { mocha.run(); }
+      mocha.run();
     </script>
   </body>
 </html>
