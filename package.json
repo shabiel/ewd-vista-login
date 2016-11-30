@@ -11,5 +11,9 @@
   },
   "peerDependencies": {
     "ewd-vista": "1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "~3.9",
+    "eslint-plugin-json": "~1.2",
   }
 }

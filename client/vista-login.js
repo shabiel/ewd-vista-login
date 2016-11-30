@@ -1,4 +1,4 @@
-var clientMethods = {};
+let clientMethods = {};
 
 /* Initialize ST management then call to see if we can log on */
 clientMethods.preLogin1 = function(EWD) {
@@ -410,7 +410,6 @@ clientMethods.setContext = function(EWD) {
     EWD.emit('setContextStatus', responseObj);
     
     if (responseObj.message.value != 1) {
-      EWD.emit('setContextStatus');
       toastr.error(responseObj.message.value);
       clientMethods.logout(EWD);
     }
