@@ -1,6 +1,6 @@
 {
   "name": "ewd-vista-login",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "EWD VistA: login module (required)",
   "main": "index.js",
   "author": "Alexis Carlson & Sam Habiel",
@@ -10,7 +10,7 @@
     "url": "git+https://github.com/shabiel/ewd-vista-login.git"
   },
   "peerDependencies": {
-    "ewd-vista": "1.0.0"
+    "ewd-vista": "1.0.1"
   },
   "devDependencies": {
     "eslint": "~3.9",
