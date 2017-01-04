@@ -443,9 +443,7 @@ clientMethods.showNav = function (EWD) {
   $('#logout-button').one('click', function() {
     clientMethods.logout(EWD);
   });
-  
-  $('.user-info').on('click', function(e) { return false; });
-  
+    
   clientMethods.showUserInfo(EWD);
 };
 
