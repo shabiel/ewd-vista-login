@@ -521,7 +521,7 @@ clientMethods.showSymbolTable = function(EWD) {
     symbolTableHtml = symbolTableHtml.slice(2,-1);
     /*
     Fix format based on what Mumps programmers will expect to see and hope for
-    the absence of inconvenient patterns in letiable values
+    the absence of inconvenient patterns in variable values
     */
     symbolTableHtml = symbolTableHtml.replace(/^\s'/,'');
     symbolTableHtml = symbolTableHtml.replace(/.\n\s'/g,'\n\n');
