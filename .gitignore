@@ -4,6 +4,11 @@
 
 # Node.js
 node_modules/
+bundle.js
 
 # Eclipse
 .project
+
+# VistA
+*.mje
+*.mjo
