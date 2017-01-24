@@ -17,12 +17,13 @@
     "eslint-plugin-json": "~1.2"
   },
   "ewd_vista": {
+    "name": "Login",
     "module": "ewd-vista-login",
     "parentModule": "ewd-vista",
     "securityKeys": ["GUNG", "HO"],
-    "client": {
-      "constantName": "",
-      "scriptName": ""
+    "clientJs": {
+      "constantName": "login",
+      "scriptName": "vista-login"
     }
   }
 }
