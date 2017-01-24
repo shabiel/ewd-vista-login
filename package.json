@@ -15,5 +15,14 @@
   "devDependencies": {
     "eslint": "~3.9",
     "eslint-plugin-json": "~1.2"
+  },
+  "ewd_vista": {
+    "module": "ewd-vista-login",
+    "parentModule": "ewd-vista",
+    "securityKeys": ["GUNG", "HO"],
+    "client": {
+      "constantName": "",
+      "scriptName": ""
+    }
   }
 }
