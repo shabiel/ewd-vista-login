@@ -20,7 +20,6 @@
     "module": "ewd-vista-login",
     "parentModule": "ewd-vista",
     "name": "Login",
-    "sortOrder": "0",
-    "securityKeys": ["YAHTZEE"]
+    "sortOrder": "0"
   }
 }

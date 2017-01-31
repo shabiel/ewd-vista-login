@@ -447,52 +447,6 @@ clientMethods.showNav = function (EWD) {
   clientMethods.showUserInfo(EWD);
 };
 
-// Get user info
-clientMethods.showUserInfo = function(EWD) {
-  let messageObj = {
-    service: 'ewd-vista-login',
-    type: 'RPC',
-    params: {
-      rpcName: 'XUS GET USER INFO'
-    }
-  };
-  
-  EWD.send(messageObj, function(responseObj) {
-    EWD.emit('showUserInfoStatus', responseObj);
-    
-    let info = responseObj.message.value;
-    
-    // List user name in nav
-    $('#user-name').prepend(info[1]);
-    // Build user info
-    $('#user-duz').append(info[0]);
-    $('#user-fullname').append(info[2]);
-    $('#user-title').append(info[4]);
-    $('#user-division').append(info[3].split('^')[1]);
-    $('#user-service').append(info[5]);
-    $('#user-language').append(info[6]);
-    $('#user-dtime').append(info[7] + ' s');
-    
-    $('#navbar').removeClass('invisible');
-    
-    // Use DTIME to set session timeout
-    clientMethods.setTimeout(info[7], EWD);
-  });
-};
-
-clientMethods.setTimeout = function(sessionTimeout, EWD) {
-  let messageObj = {
-    service: 'ewd-vista-login',
-    type: 'setTimeout',
-    params: {
-      timeout: sessionTimeout
-    }
-  };
-  EWD.send(messageObj, function(responseObj) {
-    EWD.emit('setTimeoutStatus', responseObj);
-  });
-};
-
 // Get symbol table from server (Button on Navbar)
 clientMethods.showSymbolTable = function(EWD) {
   // Unbind keydown and modal button event handlers
@@ -562,6 +516,81 @@ clientMethods.showSymbolTable = function(EWD) {
       // Show modal
       $('#modal-window .btn').show();
       $('#modal-window').modal('show');
+    });
+  });
+};
+
+// Get user info
+clientMethods.showUserInfo = function(EWD) {
+  let messageObj = {
+    service: 'ewd-vista-login',
+    type: 'RPC',
+    params: {
+      rpcName: 'XUS GET USER INFO'
+    }
+  };
+  
+  EWD.send(messageObj, function(responseObj) {
+    EWD.emit('showUserInfoStatus', responseObj);
+    
+    let info = responseObj.message.value;
+    
+    // Start loading modules
+    clientMethods.loadModules(info[0], EWD);
+    
+    // List user name in nav
+    $('#user-name').prepend(info[1]);
+    // Build user info
+    $('#user-duz').append(info[0]);
+    $('#user-fullname').append(info[2]);
+    $('#user-title').append(info[4]);
+    $('#user-division').append(info[3].split('^')[1]);
+    $('#user-service').append(info[5]);
+    $('#user-language').append(info[6]);
+    $('#user-dtime').append(info[7] + ' s');
+    
+    $('#navbar').removeClass('invisible');
+    
+    // Use DTIME to set session timeout
+    clientMethods.setTimeout(info[7], EWD);
+  });
+};
+
+clientMethods.setTimeout = function(sessionTimeout, EWD) {
+  let messageObj = {
+    service: 'ewd-vista-login',
+    type: 'setTimeout',
+    params: {
+      timeout: sessionTimeout
+    }
+  };
+  EWD.send(messageObj, function(responseObj) {
+    EWD.emit('setTimeoutStatus', responseObj);
+  });
+};
+
+clientMethods.loadModules = function(duz, EWD) {
+  // Dynamically load the other VistA modules for which the user has
+  // correct security keys
+  let messageObj = {
+    service: 'ewd-vista-login',
+    type: 'getAuthorizedModules',
+    params: { duz: duz }
+  }
+  EWD.send(messageObj, function(responseObj) {
+    let modulesData = responseObj.message.modulesData;
+    
+    modulesData.forEach(function(element) {
+      // Load client "module"
+      $.getScript('assets/javascripts/' + element.module.replace('ewd-', '') + '.js', function(){
+        // Call module prep function
+        window[element.clientModuleName]['prep'](EWD);
+      });
+      // Load stylesheet
+      $('head').append('<link href="assets/stylesheets/' + element.htmlName + '.css" rel="stylesheet" />')
+      // Add to menu -- will need to more elaborate when we have nested
+      // modules.
+      $('.apps-menu .dropdown-menu').append('<li><a href="#" id="app-' + element.htmlName + '">' + element.name + '</a></li>');
     });
   });
 };
