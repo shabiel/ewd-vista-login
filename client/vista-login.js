@@ -529,11 +529,13 @@ clientMethods.showUserInfo = function(EWD) {
       rpcName: 'XUS GET USER INFO'
     }
   };
-  
   EWD.send(messageObj, function(responseObj) {
     EWD.emit('showUserInfoStatus', responseObj);
     
     let info = responseObj.message.value;
+    
+    // Typeahead
+    clientMethods.getUsers(EWD);
     
     // Start loading modules
     clientMethods.loadModules(info[0], EWD);
@@ -587,12 +589,34 @@ clientMethods.loadModules = function(duz, EWD) {
         window[element.clientModuleName]['prep'](EWD);
       });
       // Load stylesheet
-      $('head').append('<link href="assets/stylesheets/' + element.htmlName + '.css" rel="stylesheet" />')
+      $('head').append('<link rel="stylesheet" href="assets/stylesheets/' + element.htmlName + '.css">')
       // Add to menu -- will need to more elaborate when we have nested
       // modules.
       $('.apps-menu .dropdown-menu').append('<li><a href="#" id="app-' + element.htmlName + '">' + element.name + '</a></li>');
     });
   });
 };
+
+clientMethods.getUsers = function(EWD) {
+  let users = ["CARLSON,ALEXIS","CARLSON,LARRY","HABIEL,SAM"];
+  
+  $( "#vista-user" ).autocomplete({
+    source: function( request, response ) {
+            var matcher = new RegExp( "^" + $.ui.autocomplete.escapeRegex( request.term ) );
+            response( $.grep( users, function( item ){
+                return matcher.test( item );
+            }) );
+        }
+  });
+  
+  // let messageObj = {
+  //   service: 'ewd-vista-login',
+  //   type: 'getUsers',
+  //   params: { query: query }
+  // };
+  // EWD.send(messageObj, function(responseObj) {
+  //   let usersData = responseObj.message.users
+  // });
+}
 
 module.exports = clientMethods;
