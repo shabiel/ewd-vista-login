@@ -598,6 +598,7 @@ clientMethods.loadModules = function(duz, EWD) {
 };
 
 clientMethods.getUsers = function(EWD) {
+  // jQuery Autocomplete Widget ~ https://api.jqueryui.com/autocomplete/
   $( "#vista-user" ).autocomplete({
     minLength: 0,
     delay: 200,
