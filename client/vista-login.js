@@ -599,12 +599,28 @@ clientMethods.loadModules = function(duz, EWD) {
 
 clientMethods.getUsers = function(EWD) {
   // jQuery Autocomplete Widget ~ https://api.jqueryui.com/autocomplete/
+  // Extend the widget
+  $.widget( "ui.autocomplete", $.ui.autocomplete, {
+    _renderItem: function( ul, item ) {
+      console.log(this);
+      return $( "<li>" )
+        .append( item.label )
+        .appendTo( ul );
+    },
+    options: {
+      select: function( event, ui ) {
+        $(event.target).data('record', ui.item.value);
+        $(event.target).val(ui.item.label);
+        
+        return false;
+      }
+    }
+  });
+  // Use the widget
   $( "#vista-user" ).autocomplete({
     minLength: 0,
     delay: 200,
     source: function(request, response) {
-      console.log('Request:');
-      console.log(request);
       let messageObj = {
         service: 'ewd-vista-login',
         type: 'getUsers',
@@ -614,13 +630,16 @@ clientMethods.getUsers = function(EWD) {
         let usersData = responseObj.message.users;
         let users     = [];
         
-        usersData.forEach(function(user) {
-          users.push(user.split('^')[1]);
+        usersData.forEach(function(userData) {
+          let user = {};
+          user.value  = userData.split('^')[0]
+          user.label  = userData.split('^')[1]
+          users.push(user);
         });
         
         response(users);
       });
-    }
+    }    
   });
   
   
