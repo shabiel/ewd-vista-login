@@ -602,15 +602,16 @@ clientMethods.getUsers = function(EWD) {
   // Extend the widget
   $.widget( "ui.autocomplete", $.ui.autocomplete, {
     _renderItem: function( ul, item ) {
-      console.log(this);
-      return $( "<li>" )
-        .append( item.label )
+      return $('<li>')
+        .append('<strong>' + item.name + '</strong>')
+        .append('<br>')
+        .append('&nbsp;&nbsp;<span>' + item.initials + '</span>')
         .appendTo( ul );
     },
     options: {
       select: function( event, ui ) {
-        $(event.target).data('record', ui.item.value);
-        $(event.target).val(ui.item.label);
+        $(event.target).data('user', ui.item);
+        $(event.target).val(ui.item.name);
         
         return false;
       }
@@ -628,14 +629,7 @@ clientMethods.getUsers = function(EWD) {
       };
       EWD.send(messageObj, function(responseObj) {
         let usersData = responseObj.message.users;
-        let users     = [];
-        
-        usersData.forEach(function(userData) {
-          let user = {};
-          user.value  = userData.split('^')[0]
-          user.label  = userData.split('^')[1]
-          users.push(user);
-        });
+        let users     = usersData.records;
         
         response(users);
       });
