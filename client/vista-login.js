@@ -600,7 +600,7 @@ clientMethods.loadModules = function(duz, EWD) {
 clientMethods.getUsers = function(EWD) {
   // Set up this button
   $('#vista-user-btn').on('click', function(e) {
-    let user = $('#vista-user').data().user;
+    let user = $('#vista-user').data().record;
     
     if (user) {
       toastr['info']('Check the console for user data');
@@ -617,12 +617,13 @@ clientMethods.getUsers = function(EWD) {
   // Extend the widget
   $.widget( "ui.autocomplete", $.ui.autocomplete, {
     _renderItem: function(ul, item) {
+      // Grab fields data from autocomplete element
+      // Stored with each request
       let fields = $(this.element).data('fields');
-      let primaryField = fields[1].key;
       
       let html = '';
       html = html + '<li>';
-      html = html + '<strong>' + item[primaryField] + '</strong>';
+      html = html + '<strong>' + item[fields[1].key] + '</strong>';
       for (let i = 2; i < fields.length; i++) {
         html = html + '<br>';
         html = html + '<span>';
@@ -636,7 +637,7 @@ clientMethods.getUsers = function(EWD) {
     },
     options: {
       select: function(event, ui) {
-        $(event.target).data('user', ui.item);
+        $(event.target).data('record', ui.item);
         $(event.target).val(ui.item.name);
         
         return false;
@@ -649,7 +650,8 @@ clientMethods.getUsers = function(EWD) {
     minLength: 0,
     delay: 200,
     source: function(request, response) {
-      let outerThis = this;
+      // element will be a jQuery UI object
+      let element = this.element;
       
       let messageObj = {
         service: 'ewd-vista-login',
@@ -660,9 +662,11 @@ clientMethods.getUsers = function(EWD) {
         let usersData = responseObj.message.users;
         let users     = usersData.records;
         
-        // Attach fields data to the input so the menu can include it
+        // Attach fields data to the element so the menu can include it
         // dynamically
-        $(outerThis.element).data('fields', usersData.fields);
+        if (!element.data('fields')) {
+          element.data('fields', usersData.fields);
+        }
                 
         response(users);
       });
