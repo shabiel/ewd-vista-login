@@ -614,12 +614,13 @@ clientMethods.getUsers = function(EWD) {
   });
   
   // jQuery Autocomplete Widget ~ https://api.jqueryui.com/autocomplete/
-  // Extend the widget
+  // Extend the widget by redefining it
+  // Perhaps I should define a new widget, but for now...
   $.widget( "ui.autocomplete", $.ui.autocomplete, {
     _renderItem: function(ul, item) {
       // Grab fields data from autocomplete element
       // Stored with each request
-      let fields = $(this.element).data('fields');
+      let fields = this.element.data('fields');
       
       let html = '';
       html = html + '<li>';
@@ -637,8 +638,12 @@ clientMethods.getUsers = function(EWD) {
     },
     options: {
       select: function(event, ui) {
+        // Grab fields data from autocomplete element
+        // Stored with each request
+        let fields = $(this).data('fields');
+        
         $(event.target).data('record', ui.item);
-        $(event.target).val(ui.item.name);
+        $(event.target).val(ui.item[fields[1].key]);
         
         return false;
       }
@@ -659,16 +664,16 @@ clientMethods.getUsers = function(EWD) {
         params: { query: request.term }
       };
       EWD.send(messageObj, function(responseObj) {
-        let usersData = responseObj.message.users;
-        let users     = usersData.records;
-        
-        // Attach fields data to the element so the menu can include it
+        let results = responseObj.message.results;
+                
+        // Attach file & fields data to the element so the menu can include it
         // dynamically
         if (!element.data('fields')) {
-          element.data('fields', usersData.fields);
+          element.data('file', results.file);
+          element.data('fields', results.fields);
         }
-                
-        response(users);
+        
+        response(results.records);
       });
     }
   });
