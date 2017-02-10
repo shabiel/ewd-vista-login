@@ -640,6 +640,7 @@ clientMethods.getUsers = function(EWD) {
         // Grab fields data from autocomplete element
         let fields = $(this).data('fields');
         
+        // Attach record data to the element & show display field
         $(event.target).data('record', ui.item);
         $(event.target).val(ui.item[fields[1].key]);
         
