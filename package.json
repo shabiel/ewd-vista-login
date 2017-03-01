@@ -13,8 +13,8 @@
     "ewd-vista": "1.0.1"
   },
   "devDependencies": {
-    "eslint": "~3.9",
-    "eslint-plugin-json": "~1.2"
+    "eslint": "",
+    "eslint-plugin-json": ""
   },
   "ewdVista": {
     "module": "ewd-vista-login",
