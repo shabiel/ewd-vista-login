@@ -20,6 +20,6 @@
     "module": "ewd-vista-login",
     "parentModule": "ewd-vista",
     "name": "Login",
-    "sortOrder": "0"
+    "sortOrder": "1"
   }
 }
