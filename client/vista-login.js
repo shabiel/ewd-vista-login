@@ -597,7 +597,7 @@ clientMethods.loadModules = function(duz, EWD) {
       $('head').append('<link rel="stylesheet" href="assets/stylesheets/' + element.htmlName + '.css">');
       // Add to menu -- will need to more elaborate when we have nested
       // modules.
-      $('.apps-menu .dropdown-menu').append('<li><a href="#" id="app-' + element.htmlName + '">' + element.name + '</a></li>');
+      $('#apps-menu .dropdown-menu').append('<li><a href="#" id="app-' + element.htmlName + '">' + element.name + '</a></li>');
     });
   });
 };
