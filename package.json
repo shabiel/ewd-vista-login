@@ -9,9 +9,6 @@
     "type": "git",
     "url": "git+https://github.com/shabiel/ewd-vista-login.git"
   },
-  "peerDependencies": {
-    "ewd-vista": "1.0.1"
-  },
   "devDependencies": {
     "eslint": "",
     "eslint-plugin-json": ""
