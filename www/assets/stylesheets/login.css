@@ -4,6 +4,10 @@
   overflow-y: scroll;
   height: 350px;
 }
+#login-intro > pre
+{
+  font-size: 12px;
+}
 .checkbox.login
 {
   text-align: left;
