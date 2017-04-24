@@ -64,7 +64,7 @@ clientMethods.login = function(EWD) {
       clientMethods.loggingIn(responseObj, EWD);
     });
   });
-  
+
   // Handle enter and escape keys
   $(document).on('keydown', function(event){
     // Set up Return key
@@ -76,21 +76,21 @@ clientMethods.login = function(EWD) {
       clientMethods.logout(EWD);
     }
   });
-  
+
   // Focus on user name when form shows
   $('#modal-window').one('shown.bs.modal', function() {
     $('#username').focus();
   });
-  
+
   // Finally, show form
   $('#loginBtn').show();
   $('#modal-window').modal('show');
-  
+
   // TODO Remove temporary autofill of credentials
   $('#username').val('S9RR3ND3R');
   $('#password').val('NEVR2NEW*(');
   $('#loginBtn').click();
-  
+
   // Load into message last so user's aren't required to wait for it
   let messageObj = {
     service: 'ewd-vista-login',
@@ -99,12 +99,12 @@ clientMethods.login = function(EWD) {
       rpcName: 'XUS INTRO MSG'
     }
   };
-  
+
   EWD.send(messageObj, function(responseObj) {
     let arr = [];
     for (let i in responseObj.message.value)
     {
-      arr.push(responseObj.message.value[i]);  
+      arr.push(responseObj.message.value[i]);
     }
     $('#login-intro').html('<pre>' + arr.join('\n') + '</pre>');
   });
@@ -115,23 +115,23 @@ clientMethods.login = function(EWD) {
 // Invoked by click handler from log-in form above.
 clientMethods.loggingIn = function(responseObj, EWD) {
   EWD.emit('loginStatus', responseObj);
-  
+
   // Handle that we can't log in!
   if (responseObj.message.error) {
     toastr.options.target = '#modal-dialog';
     toastr.error(responseObj.message.error);
-    
+
     return;
   }
 
   // Otherwise, say that we are good to go.
   toastr.success(responseObj.message.greeting);
-  
+
   // If user wants to change verify code, load that dialog,
   // and branch to it; or if Verify Code Change is required.
   if($('#chkChangeVerify').is(':checked') || responseObj.message.cvc) {
     toastr.warning('Verify Code Must be Changed!');
-    
+
     $('#modal-window').one('hidden.bs.modal', function() {
       let params = {
         service: 'ewd-vista-login',
@@ -145,7 +145,7 @@ clientMethods.loggingIn = function(responseObj, EWD) {
         };
       }($('#password').val()));
     });
-    
+
     $('#modal-window').modal('hide');
   }
   // Otherwise (no change verify code), select division on hide event
@@ -153,7 +153,7 @@ clientMethods.loggingIn = function(responseObj, EWD) {
     $('#modal-window').one('hidden.bs.modal', function() {
       clientMethods.selectDivision(EWD);
     });
-    
+
     $('#modal-window').modal('hide');
   }
 };
@@ -168,17 +168,17 @@ clientMethods.showCVC = function(oldPassword, EWD) {
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
-  
+
   // Focus on user name when form shows
   $('#modal-window').one('shown.bs.modal', function() {
     $('#oldVC').val(oldPassword); // Put the old password here
     $('#oldVC').attr('disabled', true); // and disable the control
     $('#newVC1')[0].focus(); // focus on new verify code.
   });
-  
+
   $('#modal-window').modal('show');
- 
-  // Change Verify Code event handling 
+
+  // Change Verify Code event handling
   $('#cvcChangeBtn').on('click', function(e){
     let oldVC = $('#oldVC').val();
     let newVC1 = $('#newVC1').val();
@@ -244,8 +244,8 @@ clientMethods.doCVC = function(oldVC, newVC1, newVC2, EWD) {
   });
 };
 
-/* Verify code Change message from cvc call. Just say if we succceeded, 
- * or log-out if we failed (we don't have any other choice b/c of the 
+/* Verify code Change message from cvc call. Just say if we succceeded,
+ * or log-out if we failed (we don't have any other choice b/c of the
  * dirty logic in XUSRB). */
 clientMethods.CVCPost = function(responseObj, EWD) {
   if (responseObj.message.ok) {
@@ -260,7 +260,7 @@ clientMethods.CVCPost = function(responseObj, EWD) {
     });
     toastr.error(responseObj.message.error);
   }
-  
+
   $('#modal-window').modal('hide');
 };
 
@@ -272,7 +272,7 @@ clientMethods.selectDivision = function(EWD) {
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
-  
+
   let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
@@ -280,10 +280,10 @@ clientMethods.selectDivision = function(EWD) {
       rpcName: 'XUS DIVISION GET'
     }
   };
-   
+
   EWD.send(messageObj, function(responseObj) {
     responseObj.message.value.splice(0,1); // Remove array length element
-    
+
     let divisions = [];
     responseObj.message.value.forEach(function(element, index, array) {
       element = element.split('^');
@@ -296,8 +296,8 @@ clientMethods.selectDivision = function(EWD) {
 
       divisions.push(division);
     });
-    
-    // We are done with selecting division if selectable list is 0. Move to next task. 
+
+    // We are done with selecting division if selectable list is 0. Move to next task.
     if (divisions.length == 0) {
       clientMethods.setContext(EWD);
     }
@@ -308,7 +308,7 @@ clientMethods.selectDivision = function(EWD) {
         name: 'division.html',
         targetId: 'modal-window',
       };
-      
+
       EWD.getFragment(params, function() {
         // Build division list; and mark default and enable OK if VISTA has a default assigned.
         let optionsHtml = '';
@@ -320,22 +320,22 @@ clientMethods.selectDivision = function(EWD) {
           }
           optionsHtml = optionsHtml   + '>' + element.name + '  (' + element.code + ')' + '</option>';
         });
-        
+
         // Populate select with options
         $('#division').append(optionsHtml);
         $('#division').change(function() {
           // if user selects an item, enable Ok button in case there is no default division
           $('#ok-button').removeAttr('disabled');
-        }); 
-        
+        });
+
         // Set up buttons
         $('#ok-button').one('click', function(e) {
           let ien = $('#division').val();
-          
+
           $('#modal-window').one('hidden.bs.modal', function() {
             clientMethods.setDivision(ien, EWD);
           });
-          
+
           $('#modal-window').modal('hide');
         });
         $('#cancel-button').one('click', function(e) {
@@ -352,15 +352,15 @@ clientMethods.selectDivision = function(EWD) {
             $('#cancel-button').click();
           }
         });
-        
+
         $('#modal-window').one('shown.bs.modal', function() {
           EWD.emit('setDivisionReady');
         });
-        
+
         // Show divisions modal
         $('#modal-window .btn').show();
         $('#modal-window').modal('show');
-        
+
         // TODO Remove temporary auto-click
         $('#ok-button').click();
       });
@@ -384,23 +384,24 @@ clientMethods.setDivision = function(ien, EWD) {
   // If setting the division fails, close the application
   EWD.send(messageObj, function(responseObj){
     EWD.emit('setDivisionStatus', responseObj);
-    
+
     if (responseObj.message.value != 1) {
       toastr.error('Failed to set division');
       clientMethods.logout(EWD);
     }
-    
+
     clientMethods.setContext(EWD);
   });
 };
 
 /* Create Context Call -- Right now, hardcoded to OR CPRS GUI CHART */
-/* I will be getting rid of clientMethods as I want to get rid of setting 
+/* TODO: Get rid of this. */
+/* I will be getting rid of clientMethods as I want to get rid of setting
  * context on the client side. I want it dealt with transparently on the
  * server side. */
 clientMethods.setContext = function(EWD) {
   $('#modal-window').modal('hide');
-  
+
   let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
@@ -416,21 +417,21 @@ clientMethods.setContext = function(EWD) {
   // If we can't set the context, close the application
   EWD.send(messageObj, function(responseObj){
     EWD.emit('setContextStatus', responseObj);
-    
+
     if (responseObj.message.value != 1) {
       toastr.error(responseObj.message.value);
       clientMethods.logout(EWD);
     }
-    else { 
-      clientMethods.showNav(EWD); 
+    else {
+      clientMethods.showNav(EWD);
     }
-  });  
+  });
 };
 
 /* Log out functionality */
 clientMethods.logout = function(EWD) {
   toastr.info('Logging Out!');
-  
+
   params ={
     service: 'ewd-vista-login',
     type: 'logout'
@@ -451,7 +452,7 @@ clientMethods.showNav = function (EWD) {
   $('#logout-button').one('click', function() {
     clientMethods.logout(EWD);
   });
-    
+
   clientMethods.showUserInfo(EWD);
 };
 
@@ -460,17 +461,17 @@ clientMethods.showSymbolTable = function(EWD) {
   // Unbind keydown and modal button event handlers
   $(document).off('keydown');
   $('#modal-window button').off();
-  
+
   // Load into message last so user's aren't required to wait for it
   let messageObj = {
     service: 'ewd-vista-login',
     type: 'RPC',
     params: { rpcName: 'ORWUX SYMTAB' }
   };
-  
-  EWD.send(messageObj, function(responseObj) {    
+
+  EWD.send(messageObj, function(responseObj) {
     let symbolTable = responseObj.message.value;
-    
+
     // Fix structure of symbol table object
     let jsonSymbolTable = {};
     let keys = Object.keys(symbolTable);
@@ -489,7 +490,7 @@ clientMethods.showSymbolTable = function(EWD) {
     symbolTableHtml = symbolTableHtml.replace(/.\n\s'/g,'\n\n');
     symbolTableHtml = symbolTableHtml.replace(/': /g, '=');
     symbolTableHtml = symbolTableHtml.replace(/\\'/g, '');
-    
+
     let params = {
       service: 'ewd-vista-login',
       name: 'symbol-table.html',
@@ -510,13 +511,13 @@ clientMethods.showSymbolTable = function(EWD) {
       $('#ok-button').one('click', function() {
         $('#modal-window').modal('hide');
       });
-      
+
       $(document).one('keydown', function(event) {
         if ((event.keyCode === 13) || (event.keyCode === 27)) {
           $('#ok-button').click();
         }
       });
-      
+
       $('#modal-window').one('shown.bs.modal', function() {
         EWD.emit('showSymbolTableStatus', responseObj);
       });
@@ -539,12 +540,12 @@ clientMethods.showUserInfo = function(EWD) {
   };
   EWD.send(messageObj, function(responseObj) {
     EWD.emit('showUserInfoStatus', responseObj);
-    
+
     let info = responseObj.message.value;
-    
+
     // Start loading modules
     clientMethods.loadModules(info[0], EWD);
-    
+
     // List user name in nav
     $('#user-name').prepend(info[1]);
     // Build user info
@@ -555,9 +556,9 @@ clientMethods.showUserInfo = function(EWD) {
     $('#user-service').append(info[5]);
     $('#user-language').append(info[6]);
     $('#user-dtime').append(info[7] + ' s');
-    
+
     $('#navbar').removeClass('invisible');
-    
+
     // Use DTIME to set session timeout
     clientMethods.setTimeout(info[7], EWD);
   });
@@ -586,7 +587,7 @@ clientMethods.loadModules = function(duz, EWD) {
   };
   EWD.send(messageObj, function(responseObj) {
     let modulesData = responseObj.message.modulesData;
-    
+
     modulesData.forEach(function(element) {
       // Load client "module"
       $.getScript('assets/javascripts/' + element.module.replace('ewd-', '') + '.js', function(){
@@ -594,6 +595,7 @@ clientMethods.loadModules = function(duz, EWD) {
         window[element.clientModuleName]['prep'](EWD);
       });
       // Load stylesheet
+      // TODO: Change this to be the same name as the javascript file resolution code
       $('head').append('<link rel="stylesheet" href="assets/stylesheets/' + element.htmlName + '.css">');
       // Add to menu -- will need to more elaborate when we have nested
       // modules.
