@@ -590,12 +590,15 @@ clientMethods.loadModules = function(duz, EWD) {
 
     modulesData.forEach(function(element) {
       // Load client "module"
+      // TODO: Think of a lazy load way of doing this. We don't want to load ALL of the javascript
+      // needed in the first load of the application.
       $.getScript('assets/javascripts/' + element.module.replace('ewd-', '') + '.js', function(){
         // Call module prep function
         window[element.clientModuleName]['prep'](EWD);
       });
       // Load stylesheet
       // TODO: Change this to be the same name as the javascript file resolution code
+      // TODO: Do this in the module, rather than here. No need to load this here.
       $('head').append('<link rel="stylesheet" href="assets/stylesheets/' + element.htmlName + '.css">');
       // Add to menu -- will need to more elaborate when we have nested
       // modules.
