@@ -9,10 +9,11 @@
 const assert = require('assert');
 
 // App requirements
-const DocumentStore = require('ewd-document-store');
-const thisInterface = require('nodem');
-const runRPC = require('ewd-qoper8-vistarpc/lib/proto/runRPC');
-const sessions = require('ewd-session');
+const DocumentStore = require('../../qewd/node_modules/ewd-qoper8-cache/node_modules/ewd-document-store');
+//const thisInterface = require('nodem'); GT.M
+const thisInterface = require('cache');
+const runRPC = require('../../ewd-vista/lib/runRPC');
+const sessions = require('../../qewd/node_modules/ewd-session/');
 
 let instance = {};
 let session = '';
@@ -21,8 +22,14 @@ let session = '';
 describe('Login', function() {
   before(function() {
     // Set up database connection
+    // GTM:
+    /*
     instance.db = new thisInterface.Gtm();
     instance.db.open();
+    */
+    instance.db = new thisInterface.Cache();
+    instance.db.open({path: '/usr/cachesys/mgr/', namespace: 'PANORAMA'});
+
     instance.documentStore = new DocumentStore(instance.db);
     console.log(instance.documentStore.db.version());
 
@@ -46,8 +53,8 @@ describe('Login', function() {
 
   describe('credentials', function() {
     it('should not return an error', function(){
-      let accessCode = 'S9RR3ND3R'; // process.argv[2];
-      let verifyCode = 'NEVR2NEW$%'; // process.argv[3];
+      let accessCode = process.argv[3];
+      let verifyCode = process.argv[4];
 
       let params = {
         rpcName: 'XUS AV CODE',
