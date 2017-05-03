@@ -17,6 +17,7 @@
     "module": "ewd-vista-login",
     "parentModule": "ewd-vista",
     "name": "Login",
-    "sortOrder": "1"
+    "sortOrder": "1",
+    "config": [ "upper-case-vc" ]
   }
 }
