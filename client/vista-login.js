@@ -93,13 +93,13 @@ clientMethods.login = function(EWD) {
   };
   EWD.send(messageObj, function(responseObj) {
     let user = responseObj.message.fixtures.user;
-    if (user) {
+    if (user.accessCode && user.verifyCode) {
       $('#username').val(user.accessCode);
       $('#password').val(user.verifyCode);
       $('#loginBtn').click();
     }
   });
-  
+
   // Load into message last so user's aren't required to wait for it
   messageObj = {
     service: 'ewd-vista-login',
@@ -388,7 +388,7 @@ clientMethods.selectDivision = function(EWD) {
             $('#ok-button').click();
           }
         });
-        
+
       });
     }
   }); // EWD.send
@@ -615,6 +615,7 @@ clientMethods.loadModules = function(duz, EWD) {
     let modulesData = responseObj.message.modulesData;
 
     modulesData.forEach(function(element) {
+      if (element.service) return true;
       // Load client "module"
       // TODO: Think of a lazy load way of doing this. We don't want to load ALL of the javascript
       // needed in the first load of the application.
