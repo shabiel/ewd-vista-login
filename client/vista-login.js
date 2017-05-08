@@ -88,14 +88,12 @@ clientMethods.login = function(EWD) {
   
   // Auto-fill if in development mode
   let messageObj = {
-    service: 'ewd-vista',
     type: 'getMode'
   };
   EWD.send(messageObj, function(responseObj) {
     let mode = responseObj.message.mode;
     if (mode === 'development') {
       let messageObj = {
-        service: 'ewd-vista',
         type: 'getFixtures',
         params: {
           module: 'ewd-vista-login'
@@ -391,7 +389,6 @@ clientMethods.selectDivision = function(EWD) {
         
         // Auto-click if in development mode
         let messageObj = {
-          service: 'ewd-vista',
           type: 'getMode'
         };
         EWD.send(messageObj, function(responseObj) {
