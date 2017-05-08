@@ -19,7 +19,6 @@
     "name": "Login",
     "sortOrder": "1",
     "config": [
-      "dev", 
       "upper-case-vc"
     ]
   }
