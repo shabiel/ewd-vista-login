@@ -150,7 +150,7 @@ clientMethods.loggingIn = function(responseObj, EWD) {
   let greeting = responseObj.message.greeting;
   let lastSignon = responseObj.message.lastSignon;
 
-  toastr.success(postSignInText);
+  if (postSignInText) toastr.success(postSignInText);
   toastr.success(greeting);
   toastr.info(lastSignon);
 
@@ -474,6 +474,7 @@ clientMethods.logout = function(EWD) {
   };
   EWD.send(params, function() {
     EWD.disconnectSocket();
+    location.reload();
   });
 };
 
