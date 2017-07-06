@@ -1,18 +1,12 @@
 let clientMethods = {};
 
-/* Initialize ST management then call to see if we can log on */
+/* Call to see if we can log on */
 clientMethods.preLogin1 = function(EWD) {
   let messageObj = {
     service: 'ewd-vista-login',
-    type: 'initialise'
-  };
-  EWD.send(messageObj, function(responseObj) {
-    let messageObj = {
-      service: 'ewd-vista-login',
-      type: 'isLogonInhibited'};
-    EWD.send(messageObj, function(responseObj2) {
-      clientMethods.preLogin2(responseObj2, EWD);
-    });
+    type: 'isLogonInhibited'};
+  EWD.send(messageObj, function(responseObj2) {
+    clientMethods.preLogin2(responseObj2, EWD);
   });
 };
 
@@ -87,6 +81,7 @@ clientMethods.login = function(EWD) {
   $('#modal-window').modal('show');
   
   // Auto-fill if in development mode
+  // TODO: Fix this. Error now if file does not exist.
   let messageObj = {
     service: 'ewd-vista',
     type: 'getMode'
