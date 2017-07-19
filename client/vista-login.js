@@ -90,6 +90,7 @@ clientMethods.login = function(EWD) {
     let mode = responseObj.message.mode;
     if (mode === 'development') {
       let messageObj = {
+        service: 'ewd-vista',
         type: 'getFixtures',
         params: {
           module: 'ewd-vista-login'
@@ -613,7 +614,7 @@ clientMethods.loadModules = function(duz, EWD) {
   // Dynamically load the other VistA modules for which the user has
   // correct security keys
   let messageObj = {
-    service: 'ewd-vista-login',
+    service: 'ewd-vista',
     type: 'getAuthorizedModules',
     params: { duz: duz }
   };
