@@ -594,6 +594,9 @@ clientMethods.showUserInfo = function(EWD) {
 
     // Use DTIME to set session timeout
     clientMethods.setTimeout(info[7], EWD);
+    
+    // Create Keyboard shortcuts
+    clientMethods.createKeyboardShortcuts(EWD);
   });
 };
 
@@ -607,6 +610,20 @@ clientMethods.setTimeout = function(sessionTimeout, EWD) {
   };
   EWD.send(messageObj, function(responseObj) {
     EWD.emit('setTimeoutStatus', responseObj);
+  });
+};
+
+clientMethods.createKeyboardShortcuts = function(EWD) {
+  // Bye bye keyboard listeners
+  $(document).unbind('keydown');
+  $(document).unbind('keypress');
+
+  $(document).on('keypress', function(e) {
+    // Bind Ctrl-Shift-L to logout
+    if (e.ctrlKey && e.key == 'L') { e.preventDefault(); clientMethods.logout(EWD); return; }
+    
+    // Bind User Information to Ctrl-'
+    if (e.ctrlKey && e.key == '\'') { e.preventDefault(); $('#navbar .nav #user-name').click(); return; }
   });
 };
 
@@ -625,8 +642,10 @@ clientMethods.loadModules = function(duz, EWD) {
   let messageObj = {
     service: 'ewd-vista',
     type: 'getAuthorizedModules',
-    params: { duz: duz }
   };
+  
+
+
   EWD.send(messageObj, function(responseObj) {
     let modulesData = responseObj.message.modulesData;
     $.getScript('assets/javascripts/vista-fileman.js', function(){
