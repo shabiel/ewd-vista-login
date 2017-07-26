@@ -1,6 +1,6 @@
 {
   "name": "ewd-vista-login",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "EWD VistA: login module (required)",
   "main": "index.js",
   "author": "Alexis Carlson & Sam Habiel",
