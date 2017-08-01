@@ -1,5 +1,6 @@
 {
   "name": "ewd-vista-login",
+  "engines" : { "node" : ">=6" },
   "version": "1.0.2",
   "description": "EWD VistA: login module (required)",
   "main": "index.js",
@@ -14,10 +15,7 @@
     "eslint-plugin-json": ""
   },
   "ewdVista": {
-    "module": "ewd-vista-login",
-    "parentModule": "ewd-vista",
-    "name": "Login",
-    "sortOrder": "1",
+    "service": true,
     "config": [
       "upper-case-vc"
     ]
