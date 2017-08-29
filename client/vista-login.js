@@ -646,7 +646,7 @@ clientMethods.loadModules = function(duz, EWD) {
   EWD.send(messageObj, function(responseObj) {
     let modulesData = responseObj.message.modulesData;
     $.getScript('assets/javascripts/fileman.js', function(){
-      fileman.defineWidgets(EWD);
+      vista.fileman.defineWidgets(EWD);
 
       modulesData.forEach(function(element) {
         // Nothing to load for service modules
