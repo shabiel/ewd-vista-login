@@ -446,13 +446,13 @@ clientMethods.setContext = function(EWD) {
     }
   };
 
-  // If we can't set the context, close the application
+  // If we can't set the context, oh well
+  // (don't close the app like we did before)
   EWD.send(messageObj, function(responseObj){
     EWD.emit('setContextStatus', responseObj);
 
     if (responseObj.message.value != 1) {
       toastr.error(responseObj.message.value);
-      clientMethods.logout(EWD);
     }
     else {
       clientMethods.showNav(EWD);
@@ -487,6 +487,7 @@ clientMethods.showNav = function (EWD) {
   });
 
   clientMethods.showUserInfo(EWD);
+  clientMethods.startTerminal(EWD);
 };
 
 // Get symbol table from server (Button on Navbar)
@@ -598,6 +599,12 @@ clientMethods.showUserInfo = function(EWD) {
     // Create Keyboard shortcuts
     clientMethods.createKeyboardShortcuts(EWD);
   });
+};
+
+clientMethods.startTerminal = function(EWD) {
+  var term = new vista.terminal();
+  term.open(document.getElementById('vista-terminal'));
+  term.write('Hello from \0x1B[1;3;31mxterm.js\0x1B[0m $ ');
 };
 
 clientMethods.setTimeout = function(sessionTimeout, EWD) {

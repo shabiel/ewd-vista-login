@@ -13,6 +13,7 @@
     "url": "git+https://github.com/shabiel/ewd-vista-login.git"
   },
   "devDependencies": {
+    "browserify-css": "^0.12.0",
     "eslint": "",
     "eslint-plugin-json": ""
   },
