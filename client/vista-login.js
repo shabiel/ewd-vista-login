@@ -150,6 +150,11 @@ clientMethods.loggingIn = function(responseObj, EWD) {
   toastr.success(greeting);
   toastr.info(lastSignon);
 
+  // Temporarily keep the ac/vc in the vista object for logging into R&S
+  vista.acvc = {};
+  vista.acvc.ac = $('#username').val();
+  vista.acvc.vc = $('#password').val();
+
   // If user wants to change verify code, load that dialog,
   // and branch to it; or if Verify Code Change is required.
   if($('#chkChangeVerify').is(':checked') || responseObj.message.cvc) {
@@ -482,12 +487,14 @@ clientMethods.showNav = function (EWD) {
   $('#symbols-button').one('click', function() {
     clientMethods.showSymbolTable(EWD);
   });
+  $('#rns-button').on('click', function() {
+    clientMethods.showTerminal(EWD);
+  });
   $('#logout-button').one('click', function() {
     clientMethods.logout(EWD);
   });
 
   clientMethods.showUserInfo(EWD);
-  clientMethods.startTerminal(EWD);
 };
 
 // Get symbol table from server (Button on Navbar)
@@ -602,9 +609,54 @@ clientMethods.showUserInfo = function(EWD) {
 };
 
 clientMethods.startTerminal = function(EWD) {
-  var term = new vista.terminal();
-  term.open(document.getElementById('vista-terminal'));
-  term.write('Hello from \0x1B[1;3;31mxterm.js\0x1B[0m $ ');
+  if(vista.myterm && vista.myterm.isOpen) return;
+
+  vista.myterm = new vista.terminal();
+  vista.myterm.open($('#vista-terminal .modal-body')[0], true);
+  var wsProtocol, socketURL, socket, pid;
+  wsProtocol = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+  socketURL = wsProtocol + location.hostname + ':' + '8081' + '/ewd-vista/vista-terminal/';
+  vista.myterm.on('resize', function (size) {
+    if (!pid) {
+      return;
+    }
+    var cols = size.cols,
+        rows = size.rows,
+        url = '/ewd-vista/vista-terminal/' + pid + '/size?cols=' + cols + '&rows=' + rows;
+
+    fetch(url, {method: 'POST'});
+  });
+  vista.myterm.fit();
+  // fit is called within a setTimeout, cols and rows need this.
+  setTimeout(function () {
+    vista.myterm.resize(80, 24);
+
+    fetch(location.protocol + '//' + location.hostname + ':' + '8081' + '/ewd-vista/vista-terminal/', {method: 'POST'}).then(function (res) {
+      res.text().then(function (pid) {
+        window.pid = pid;
+        socketURL += pid;
+        socket = new WebSocket(socketURL);
+        socket.onopen = function() {
+          vista.myterm.attach(socket);
+          vista.myterm.isOpen = true;
+          setTimeout(function () {
+            vista.myterm.send(vista.acvc.ac + ';' + vista.acvc.vc + '\r');
+            delete vista.acvc;
+          }, 1);
+        };
+        socket.onclose = socket.onerror = function() {
+          vista.myterm.isOpen = false;
+        };
+      });
+    });
+  }, 0);
+};
+
+clientMethods.showTerminal = function(EWD) {
+  $('#vista-terminal').one('shown.bs.modal', function() {
+    clientMethods.startTerminal(EWD);
+  });
+  $('#vista-terminal').modal('show');
 };
 
 clientMethods.setTimeout = function(sessionTimeout, EWD) {
